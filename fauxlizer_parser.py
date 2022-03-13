@@ -81,9 +81,7 @@ def fetch_row(payload, row_num, format):
     else:
         return result
 
-
-if __name__ == "__main__":
-
+def test():
     code, payload = extract_data("file_0.faux")
     summary = generate_summary(code, payload)
 
@@ -120,3 +118,8 @@ if __name__ == "__main__":
     code, payload = extract_data("file_9.faux")
     summary = generate_summary(code, payload)
     print("file_9", summary)
+
+
+if __name__ == "__main__":
+    pass
+
