@@ -1,7 +1,9 @@
+import argparse
 import csv
+import fileinput
 import io
 import json
-import fileinput
+from pathlib import Path
 
 from csv import DictReader
 
@@ -16,6 +18,8 @@ def is_float(string):
 
 
 def extract_data(file_name: str):
+    if not Path(file_name).is_file():
+        return ("FILE_DOES_NOT_EXIST", file_name)
     header_str = fileinput.input(file_name)[0]
     fileinput.close()
     headers = ["experiment_name", "sample_id", "fauxness", "category_guess"]
@@ -49,6 +53,7 @@ def extract_data(file_name: str):
 
 
 def generate_summary(return_code, payload):
+    result = {}
     if return_code == "SUCCESS":
         fauxnesses = sorted([x["fauxness"] for x in payload])
         if len(fauxnesses) == 1:
@@ -56,7 +61,7 @@ def generate_summary(return_code, payload):
         else:
             min_fauxness = fauxnesses[0]
             max_fauxness = fauxnesses[-1]
-        return {
+        result = {
             "return_code": return_code,
             "payload": "",
             "extras": {
@@ -65,10 +70,11 @@ def generate_summary(return_code, payload):
             },
         }
     else:
-        return {"return_code": return_code, "payload": payload, "extras": {}}
+        result = {"return_code": return_code, "payload": payload, "extras": {}}
+    return json.dumps(result)
 
 
-def fetch_row(payload, row_num, format):
+def fetch_row(payload, row_num, format=None):
     result = payload[row_num]
     if format == "JSON":
         return json.dumps(result)
@@ -80,6 +86,7 @@ def fetch_row(payload, row_num, format):
         return output.getvalue()
     else:
         return result
+
 
 def test():
     return_code, payload = extract_data("file_0.faux")
@@ -121,5 +128,22 @@ def test():
 
 
 if __name__ == "__main__":
-    pass
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file_name", type=str, help="Fauxlizer csv data file.")
+    parser.add_argument(
+        "-f", "--format", type=str, help="Output format. Arguments can be JSON or CSV"
+    )
+    parser.add_argument(
+        "-l", "--linenum", type=int, help="Line number to output"
+    )
+    args = parser.parse_args()
+    return_code, payload = extract_data(args.file_name)
+    summary = generate_summary(return_code, payload)
+    print(summary)
 
+    if args.linenum is not None and return_code == "SUCCESS":
+        if args.linenum > len(payload):
+            print("Invalid argument for line number.")
+        else:
+            row = fetch_row(payload, args.linenum, format=args.format)
+            print(row)
