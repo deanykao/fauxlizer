@@ -48,8 +48,8 @@ def extract_data(file_name: str):
     return ("SUCCESS", results)
 
 
-def generate_summary(code, payload):
-    if code == "SUCCESS":
+def generate_summary(return_code, payload):
+    if return_code == "SUCCESS":
         fauxnesses = sorted([x["fauxness"] for x in payload])
         if len(fauxnesses) == 1:
             min_fauxness = max_fauxness = fauxnesses[0]
@@ -57,7 +57,7 @@ def generate_summary(code, payload):
             min_fauxness = fauxnesses[0]
             max_fauxness = fauxnesses[-1]
         return {
-            "code": code,
+            "return_code": return_code,
             "payload": "",
             "extras": {
                 "rows": len(payload),
@@ -65,7 +65,7 @@ def generate_summary(code, payload):
             },
         }
     else:
-        return {"code": code, "payload": payload, "extras": {}}
+        return {"return_code": return_code, "payload": payload, "extras": {}}
 
 
 def fetch_row(payload, row_num, format):
@@ -82,41 +82,41 @@ def fetch_row(payload, row_num, format):
         return result
 
 def test():
-    code, payload = extract_data("file_0.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_0.faux")
+    summary = generate_summary(return_code, payload)
 
     print(fetch_row(payload, 0, "JSON"))
     print(fetch_row(payload, 0, "CSV"))
     print(fetch_row(payload, 0, "PYTHON"))
 
     print("file_0", summary)
-    code, payload = extract_data("file_1.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_1.faux")
+    summary = generate_summary(return_code, payload)
     json_summary = json.dumps(summary)
     print("file_1", json_summary)
 
-    code, payload = extract_data("file_3.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_3.faux")
+    summary = generate_summary(return_code, payload)
     print("file_3", summary)
 
-    code, payload = extract_data("file_4.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_4.faux")
+    summary = generate_summary(return_code, payload)
     print("file_4", summary)
 
-    code, payload = extract_data("file_5.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_5.faux")
+    summary = generate_summary(return_code, payload)
     print("file_5", summary)
 
-    code, payload = extract_data("file_6.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_6.faux")
+    summary = generate_summary(return_code, payload)
     print("file_6", summary)
 
-    code, payload = extract_data("file_7.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_7.faux")
+    summary = generate_summary(return_code, payload)
     print("file_7", summary)
 
-    code, payload = extract_data("file_9.faux")
-    summary = generate_summary(code, payload)
+    return_code, payload = extract_data("file_9.faux")
+    summary = generate_summary(return_code, payload)
     print("file_9", summary)
 
 
